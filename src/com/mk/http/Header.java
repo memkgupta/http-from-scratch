@@ -1,3 +1,5 @@
+package com.mk.http;
+
 public class Header {
     private String key;
     private String value;
@@ -24,7 +26,7 @@ public class Header {
 
     @Override
     public String toString() {
-        return "Header{" +
+        return "com.mk.http.Header{" +
                 "key='" + key + '\'' +
                 ", value='" + value + '\'' +
                 '}';

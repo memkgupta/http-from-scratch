@@ -1,3 +1,5 @@
+package com.mk.http;
+
 public class RequestLine {
     private String method;
     private String uri;

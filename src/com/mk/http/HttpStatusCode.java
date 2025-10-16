@@ -1,3 +1,5 @@
+package com.mk.http;
+
 public abstract class HttpStatusCode {
     static int OK = 200;
     static int CREATED = 201;

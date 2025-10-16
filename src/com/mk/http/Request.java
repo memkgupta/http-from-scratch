@@ -1,7 +1,8 @@
-import java.util.ArrayList;
+package com.mk.http;
+
 import java.util.HashMap;
 
-public class Request<T> {
+public  class Request<T> {
     private String method;
     private String uri;
     private HashMap<String,String> headers;
@@ -9,6 +10,7 @@ public class Request<T> {
     private HashMap<String,String> query;
      private HashMap<String,String> cookies;
     private HashMap<String,String> params;
+
     public Request(String method, String uri) {
         this.method = method;
         this.uri = uri;
