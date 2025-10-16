@@ -45,14 +45,14 @@ public class Response{
     }
     public void send(String data)
     {
-       
+
 
         StringBuilder response = this.generateResponse();
         int contentLength = data.getBytes().length;
         response.append("Content-Length: ").append(contentLength).append("\r\n");
         response.append("\r\n");
         response.append(data);
-        System.out.println(response);
+
         try {
             outputStream.write(response.toString().getBytes(StandardCharsets.UTF_8));
 
