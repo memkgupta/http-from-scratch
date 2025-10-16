@@ -1,16 +1,42 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Request {
+public class Request<T> {
     private String method;
     private String uri;
     private HashMap<String,String> headers;
-    private String body;
-
+    private T body;
+    private HashMap<String,String> query;
+     private HashMap<String,String> cookies;
+    private HashMap<String,String> params;
     public Request(String method, String uri) {
         this.method = method;
         this.uri = uri;
         this.headers = new HashMap<>();
+    }
+
+    public HashMap<String, String> getQuery() {
+        return query;
+    }
+
+    public void setQuery(HashMap<String, String> query) {
+        this.query = query;
+    }
+
+    public HashMap<String, String> getCookies() {
+        return cookies;
+    }
+
+    public void setCookies(HashMap<String, String> cookies) {
+        this.cookies = cookies;
+    }
+
+    public HashMap<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(HashMap<String, String> params) {
+        this.params = params;
     }
 
     public String getMethod() {
@@ -37,11 +63,11 @@ public class Request {
         this.headers = headers;
     }
 
-    public String getBody() {
+    public T getBody() {
         return body;
     }
 
-    public void setBody(String body) {
+    public void setBody(T body) {
         this.body = body;
     }
 }
