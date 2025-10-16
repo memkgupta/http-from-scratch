@@ -45,7 +45,7 @@ public class Response{
     }
     public void send(String data)
     {
-        // simple text sending
+       
 
         StringBuilder response = this.generateResponse();
         int contentLength = data.getBytes().length;
