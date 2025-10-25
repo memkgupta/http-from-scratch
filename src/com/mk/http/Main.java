@@ -9,6 +9,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         App app = new App();
+        app.use(null,List.of(new JSONBodyParser()));
         try{
             app.get("user", List.of((request, response) -> {
                 System.out.printf("%s %s\n",request.getMethod(),"Hello");
@@ -18,6 +19,8 @@ public class Main {
             }));
             app.post("new_user",List.of(((request, response) -> {
                 response.status(201);
+                System.out.println(request.getMethod());
+                System.out.println(request.getBody(User.class));
                 response.send("User created");
                 return request;
             })));

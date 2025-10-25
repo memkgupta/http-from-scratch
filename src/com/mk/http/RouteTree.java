@@ -21,15 +21,25 @@ public class RouteTree {
     }
     public void registerMiddlewares(String path,List<Middleware> middlewares)
     {
-        if (path == null || middlewares == null) {
+        if ( middlewares == null) {
             throw new IllegalArgumentException("Path and middlewares cannot be null");
         }
+        if(path==null)
+        {
+            registerMiddlewaresInternal(root,new String[]{},0,middlewares);
+        }
+        else {
+            String[] segments = path.split("/");
+            registerMiddlewaresInternal(root,segments,0,middlewares);
+        }
 
-        String[] segments = path.split("/");
-        registerMiddlewaresInternal(root,segments,0,middlewares);
     }
     private void registerMiddlewaresInternal(RouteNode root,String[] path,int index,List<Middleware> middlewares)
     {
+        if(path.length == 0)
+        {
+            root.middlewares.addAll(middlewares);
+        }
         if (index >= path.length) return;
         String key = path[index];
         RouteNode routeNode = root.childrens.computeIfAbsent(key, RouteNode::new);

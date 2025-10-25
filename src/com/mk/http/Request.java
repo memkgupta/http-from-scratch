@@ -6,7 +6,9 @@ public  class Request {
     private String method;
     private String uri;
     private HashMap<String,String> headers;
-    private RequestBody body;
+    private byte[] raw_body;
+    private RequestBody requestBody;
+    private Class<?> clazz;
     private HashMap<String,String> query;
     private HashMap<String,String> cookies;
     private HashMap<String,String> params;
@@ -15,18 +17,15 @@ public  class Request {
         this.method = method;
         this.uri = uri;
         this.extras = new HashMap<>();
-        this.body = new RequestBody() {
-            @Override
-            public Object getBody(Class clazz) {
-                return null;
-            }
-
-            @Override
-            public Object setBody(Object body) {
-                return null;
-            }
-        };
         this.headers = new HashMap<>();
+    }
+
+    public Class<?> getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(Class<?> clazz) {
+        this.clazz = clazz;
     }
 
     public HashMap<String, String> getQuery() {
@@ -77,12 +76,12 @@ public  class Request {
         this.headers = headers;
     }
 
-    public RequestBody getBody() {
-        return body;
+    public <T> T getBody(Class<T> clazz) {
+        return requestBody.getBody(clazz);
     }
 
-    public void setBody(Object body) {
-        this.body.setBody(body);
+    public void setRequestBody(RequestBody requestBody) {
+        this.requestBody = requestBody;
     }
 
     public <T> void add(String key, T value , Class<T> clazz)
@@ -97,5 +96,11 @@ public  class Request {
             return (T) extra.getValue();
         }
         throw new RuntimeException("Illegal arguments");
+    }
+    public void setRawBody(byte[] raw_body) {
+        this.raw_body = raw_body;
+    }
+    public byte[] getRawBody() {
+        return raw_body;
     }
 }

@@ -55,7 +55,7 @@ public class Server {
 
                     if(!request.getMethod().equals("GET") && request.getHeaders().containsKey("Content-Length") && Integer.parseInt(request.getHeaders().get("Content-Length")) >= 0)
                     {
-                        // there is body in the request
+
 
                         int contentLength = Integer.parseInt( request.getHeaders().get("Content-Length"));
                         byte[] content = new byte[Integer.parseInt((String) request.getHeaders().get("Content-Length"))];
@@ -66,7 +66,7 @@ public class Server {
                         }
                         if(content.length == contentLength)
                         {
-                            request.setBody(new String(content));
+                            request.setRawBody(content);
 
                         }
 
@@ -86,6 +86,7 @@ public class Server {
                             response.throwNotFound();
                             break;
                         }
+
                         handler.handle(request,response);
                     }
 

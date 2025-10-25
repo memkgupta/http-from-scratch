@@ -1,6 +1,8 @@
 package com.mk.http;
 
+import java.util.LinkedHashMap;
+
 public interface RequestBody {
-    public Object getBody(Class clazz);
-    public Object setBody( Object body);
+    public <T> T getBody(Class<T> clazz);
+    public  Object setBody(LinkedHashMap<String, Object> body);
 }
