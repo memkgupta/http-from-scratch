@@ -12,8 +12,9 @@ public class Response{
     private Map<String,String> headers;
     private final BufferedOutputStream outputStream;
 
-    public Response(OutputStream outputStream,String version) {
+    public Response(OutputStream outputStream,String version,String contentType) {
         this.headers = new HashMap<>();
+        this.contentType = contentType;
         this.version = version;
         this.outputStream = new BufferedOutputStream(outputStream);
     }

@@ -1,47 +1,42 @@
 package com.mk.http;
 
 import java.util.HashMap;
+import java.util.List;
 
-public  class Router {
-    private HashMap<String,RequestHandler> routes;
-    private HashMap<String,Router> nestedRouters;
-
-    public Router()
+public abstract class Router {
+private final RouteTree mRouteTree = RouteTree.createInstance();
+    public void get(String uri, List<Middleware> middlewares)
     {
-        this.routes = new HashMap<>();
+        mRouteTree.registerRoute(HttpMethod.GET,uri,middlewares);
     }
-    public void get(String uri, RequestHandler handler)
+    public void post(String uri, List<Middleware> middlewares)
     {
-        this.routes.put(uri,handler);
-        RouteTree rt =  RouteTree.getInstance();
-       rt.registerRouteRequestHandler(rt.root,uri.split("/"),0,handler);
-    }
-    public void post(String uri, RequestHandler handler)
-    {
-        this.routes.put(uri,handler);
+       mRouteTree.registerRoute(HttpMethod.POST,uri,middlewares);
     }
     public  void delete(String uri)
     {
-        this.routes.remove(uri);
+        mRouteTree.registerRoute(HttpMethod.DELETE,uri,null);
     }
     public void patch(String uri, RequestHandler handler)
     {
-        this.routes.put(uri,handler);
+       mRouteTree.registerRoute(HttpMethod.PATCH,uri,null);
     }
     public void put(String uri, RequestHandler handler)
     {
-        this.routes.put(uri,handler);
+      mRouteTree.registerRoute(HttpMethod.PUT,uri,null);
     }
-    public void use(String uri , Router router)
+    public void use(String uri , List<Middleware> middlewares)
     {
-        nestedRouters.put(uri,router);
+        mRouteTree.registerMiddlewares(uri,middlewares);
     }
-    public HashMap<String, RequestHandler> getRoutes() {
-        return routes;
-    }
-    public HashMap<String, Router> getNestedRouters() {
-        return nestedRouters;
-    }
+    public void use(String uri  , SubRouter router)
+    {
 
+        mRouteTree.registerSubRouter(uri,router,mRouteTree.root);
+    }
+    public RouteTree getRouteTree()
+    {
+        return mRouteTree;
+    }
 
 }

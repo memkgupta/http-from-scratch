@@ -14,15 +14,14 @@ public class Server {
     private final ServerSocket serverSocket;
     private final HashMap<String,RequestHandler> routes;
     private final ArrayList<Middleware> globalMiddlewares;
-    private final RouteTree routeTree = RouteTree.getInstance();
-    private HashMap<String, Router> globalRouters;
+
     public Server() throws IOException {
         serverSocket = new ServerSocket(8080);
         routes = new HashMap<>();
         globalMiddlewares = new ArrayList<>();
-        globalRouters = new HashMap<>();
+
     }
-    public void start() throws IOException {
+    public void start(RouteTree appRouter) throws IOException {
         while(true){
             Socket clientSocket = serverSocket.accept();
             System.out.println("Client Connected");
@@ -38,8 +37,7 @@ public class Server {
                     if(Objects.isNull(message)){break;}
                     RequestLine requestLine = new RequestLine(message);
 
-                    Request<String> request = new Request<>(requestLine.getMethod(), requestLine.getUri());
-                    Response response = new Response(clientSocket.getOutputStream(),requestLine.getVersion());
+                    Request request = new Request(requestLine.getMethod(), requestLine.getUri());
 
                     while ((message = dis.readLine()) != null && !message.isEmpty())
                     {
@@ -53,6 +51,8 @@ public class Server {
                         }
 
                     }
+                    Response response = new Response(clientSocket.getOutputStream(),requestLine.getVersion(),request.getHeaders().get("Content-Type"));
+
                     if(!request.getMethod().equals("GET") && request.getHeaders().containsKey("Content-Length") && Integer.parseInt(request.getHeaders().get("Content-Length")) >= 0)
                     {
                         // there is body in the request
@@ -64,8 +64,11 @@ public class Server {
                             if (ch == -1) break;
                             content[totalRead++] = (byte) ch;
                         }
+                        if(content.length == contentLength)
+                        {
+                            request.setBody(new String(content));
 
-                        request.setBody(new String(content));
+                        }
 
                     }
 
@@ -76,8 +79,9 @@ public class Server {
 
                     }
                     if(request!=null){
-                        RequestHandler handler = routeTree.getMatchingRoute(request.getUri().split("/"));
+                        RequestHandler handler = appRouter.getMatchingRoute(HttpMethod.valueOf(request.getMethod()),request.getUri().split("/"));
                         if(handler==null){
+                            System.out.printf("No route found for %s\n",request.getMethod());
                             // return not found;
                             response.throwNotFound();
                             break;
@@ -98,24 +102,5 @@ public class Server {
 
         }
     }
-    public void use( Middleware middleware)  {
 
-        globalMiddlewares.add(middleware);
-    }
-    public void use(String uri , Router router) {
-        globalRouters.put(uri, router);
-
-    }
-
-
-
-    public HashMap<String, Router> getGlobalRouters() {
-        return globalRouters;
-    }
-
-
-
-    public HashMap<String, RequestHandler> getRoutes() {
-        return routes;
-    }
 }

@@ -1,18 +1,25 @@
 package com.mk.http.routers;
 
 import com.mk.http.RequestHandler;
-import com.mk.http.Router;
+import com.mk.http.SubRouter;
 import com.mk.http.controllers.UserRequestController;
 
-public class UserRouter{
-        public static Router getRouter()
-        {
-            Router router = new Router();
-            router.get("/user",new RequestHandler(UserRequestController.getUser()));
-            return router;
-        }
+import java.util.List;
 
+public class UserRouter{
+
+
+    public static SubRouter getSubRouter(){
+        SubRouter subRouter = new SubRouter();
+        subRouter.get("user", List.of(
+                ((request, response) -> {
+                    response.send("Hello from userRouter");
+                    return request;
+                })
+        ));
+        return subRouter;
     }
+}
 
 
 

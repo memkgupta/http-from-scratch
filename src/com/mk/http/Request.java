@@ -2,18 +2,29 @@ package com.mk.http;
 
 import java.util.HashMap;
 
-public  class Request<T> {
+public  class Request {
     private String method;
     private String uri;
     private HashMap<String,String> headers;
-    private T body;
+    private RequestBody body;
     private HashMap<String,String> query;
-     private HashMap<String,String> cookies;
+    private HashMap<String,String> cookies;
     private HashMap<String,String> params;
-
+    private HashMap<String,MiddlewareExtra> extras;
     public Request(String method, String uri) {
         this.method = method;
         this.uri = uri;
+        this.body = new RequestBody() {
+            @Override
+            public Object getBody(Class clazz) {
+                return null;
+            }
+
+            @Override
+            public Object setBody(Object body) {
+                return null;
+            }
+        };
         this.headers = new HashMap<>();
     }
 
@@ -65,11 +76,16 @@ public  class Request<T> {
         this.headers = headers;
     }
 
-    public T getBody() {
+    public RequestBody getBody() {
         return body;
     }
 
-    public void setBody(T body) {
-        this.body = body;
+    public void setBody(Object body) {
+        this.body.setBody(body);
+    }
+
+    public <T> void add(String key, T value , Class<T> clazz)
+    {
+        extras.put(key,new MiddlewareExtra(value,clazz));
     }
 }

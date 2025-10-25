@@ -1,23 +1,22 @@
 package com.mk.http;
 
 import java.io.IOException;
+import java.util.*;
 
 public class RequestHandler {
-    int middleware_index;
-    private final Middleware[] middlewares;
-    private final Controller controller;
+    private Queue<Middleware> middlewares;
+    public RequestHandler(ArrayList<Middleware> middlewares) {
 
-    public RequestHandler(Controller controller,Middleware... middlewares) {
-        this.controller = controller;
-        this.middlewares = middlewares;
+        this.middlewares = new LinkedList<>(middlewares);
     }
     public void handle(Request req,Response res) throws IOException {
-        Request request = req;
-        while(middleware_index<middlewares.length) {
-           request = middlewares[middleware_index].process(request, res);
-           middleware_index++;
-       }
-       controller.handleRequest(request, res);
-    }
 
+            while(!middlewares.isEmpty()){
+                Middleware m = middlewares.poll();
+                m.process(req,res);
+            }
+    }
+    public void addMiddlewares(List<Middleware> middlewares){
+        this.middlewares.addAll(middlewares);
+    }
 }

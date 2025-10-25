@@ -8,7 +8,7 @@ public class RequestLine {
     {
         String[] fields = line.split(" ");
         this.method = fields[0];
-        this.uri = fields[1];
+        this.uri = fields[1].substring(1);
         this.version = fields[2];
 
     }

@@ -1,5 +1,9 @@
 package com.mk.http;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class RouteTree {
 
     private static volatile RouteTree instance; // volatile for thread safety
@@ -10,53 +14,89 @@ public class RouteTree {
         this.root = new RouteNode("");
     }
 
-    // static factory method to get the single instance
-    public static RouteTree getInstance() {
-        if (instance == null) {
-            synchronized (RouteTree.class) {
-                if (instance == null) {
-                    instance = new RouteTree();
-                }
-            }
-        }
-        return instance;
-    }
 
-    public void registerRouteRequestHandler(RouteNode root, String[] paths, int index, RequestHandler requestHandler) {
+    public static RouteTree createInstance()
+    {
+        return new RouteTree();
+    }
+    public void registerMiddlewares(String path,List<Middleware> middlewares)
+    {
+        if (path == null || middlewares == null) {
+            throw new IllegalArgumentException("Path and middlewares cannot be null");
+        }
+
+        String[] segments = path.split("/");
+        registerMiddlewaresInternal(root,segments,0,middlewares);
+    }
+    private void registerMiddlewaresInternal(RouteNode root,String[] path,int index,List<Middleware> middlewares)
+    {
+        if (index >= path.length) return;
+        String key = path[index];
+        RouteNode routeNode = root.childrens.computeIfAbsent(key, RouteNode::new);
+
+        if (index == path.length - 1) {
+            routeNode.middlewares.addAll(middlewares);
+        }
+        registerMiddlewaresInternal(routeNode,path,index+1,middlewares);
+    }
+    public void registerRoute(HttpMethod httpMethod,String path, List<Middleware> middlewares) {
+        if (path == null || middlewares == null) {
+            throw new IllegalArgumentException("Path and middlewares cannot be null");
+        }
+
+        String[] segments = path.split("/");
+
+            registerRouteInternal(root, segments, 0,httpMethod, middlewares);
+
+    }
+    public void registerSubRouter(String path,SubRouter subRouter,RouteNode root)
+    {
+        if (path == null || subRouter == null) {
+            throw new IllegalArgumentException("Path and subRouter cannot be null");
+        }
+        String[] segments = path.split("/");
+        registerSubRouterInternal(root,segments,0,subRouter);
+    }
+    private void registerSubRouterInternal(RouteNode root , String[] path,int index,SubRouter subRouter)
+    {
+        if (index >= path.length) return;
+        String key = path[index];
+        RouteNode routeNode = root.childrens.computeIfAbsent(key, RouteNode::new);
+        if (index == path.length - 1) {
+            routeNode.childrens = subRouter.getRouteTree().root.childrens;
+        }
+        registerSubRouterInternal(routeNode,path,index+1,subRouter);
+    }
+    private void registerRouteInternal(RouteNode root, String[] paths, int index, HttpMethod method,List<Middleware> middlewareList) {
+
         if (index >= paths.length) return;
 
         String key = paths[index];
         RouteNode routeNode = root.childrens.computeIfAbsent(key, RouteNode::new);
 
         if (index == paths.length - 1) {
-            routeNode.requestHandler = requestHandler;
-            return;
+            routeNode.methods.put(method,new RequestContext(middlewareList));
         }
-
-        registerRouteRequestHandler(routeNode, paths, index + 1, requestHandler);
+        registerRouteInternal(routeNode, paths, index + 1, method,middlewareList);
     }
 
-    public RequestHandler getMatchingRoute(String[] path) {
+    public RequestHandler getMatchingRoute(HttpMethod method,String[] path) {
+        RequestHandler requestHandler = new RequestHandler(new ArrayList<>());
         RouteNode traverse = root;
-
+        requestHandler.addMiddlewares(root.middlewares);
         for (String key : path) {
             RouteNode routeNode = traverse.childrens.get(key);
-
             if (routeNode == null) {
-                // check for dynamic key (like :id)
-                String dynamicKey = traverse.childrens.keySet().stream()
-                        .filter(k -> k.startsWith(":"))
-                        .findFirst()
-                        .orElse(null);
-
-                if (dynamicKey == null) return null;
-
-                routeNode = traverse.childrens.get(dynamicKey);
+              return null;
             }
 
             traverse = routeNode;
+            requestHandler.addMiddlewares(traverse.middlewares);
         }
-
-        return traverse.requestHandler; // null if no match
+        if(traverse.methods.get(method)==null){
+            return null;
+        }
+        requestHandler.addMiddlewares(traverse.methods.get(method).getMiddlewares());
+        return requestHandler;
     }
 }

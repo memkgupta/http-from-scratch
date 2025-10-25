@@ -1,18 +1,21 @@
 package com.mk.http;
 
-import com.mk.http.controllers.UserRequestController;
-import com.mk.http.routers.UserRouter;
+import java.io.IOException;
 
-import java.io.*;
+public class App extends Router{
+    private  Server server;
+   public App()
+   {
+       try{
+           this.server = new Server();
 
-public class App {
-    public static void main(String[] args) {
-        try {
-            Server server = new Server();
-            server.use("/",UserRouter.getRouter());
-            server.start();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+       }
+       catch(Exception e){
+           e.printStackTrace();
+       }
+   }
+ public void start() throws IOException {
+     server.start(this.getRouteTree());
+ }
+
 }
