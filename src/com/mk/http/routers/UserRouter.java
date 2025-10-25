@@ -16,7 +16,19 @@ public class UserRouter{
                     response.send("Hello from userRouter");
                     return request;
                 })
+
         ));
+        subRouter.post("create",List.of(
+                ((request, response) -> {
+                    request.add("extra","This is extra",String.class);
+                    return request;
+                }),
+                ((request, response) -> {
+                    response.status(200).send("Hola amigo , user created "+request.get("extra",String.class));
+                    return request;
+                })
+                )
+        );
         return subRouter;
     }
 }

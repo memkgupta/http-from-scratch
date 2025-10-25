@@ -14,6 +14,7 @@ public  class Request {
     public Request(String method, String uri) {
         this.method = method;
         this.uri = uri;
+        this.extras = new HashMap<>();
         this.body = new RequestBody() {
             @Override
             public Object getBody(Class clazz) {
@@ -87,5 +88,14 @@ public  class Request {
     public <T> void add(String key, T value , Class<T> clazz)
     {
         extras.put(key,new MiddlewareExtra(value,clazz));
+    }
+    public <T> T get(String key, Class<T> clazz)
+    {
+        MiddlewareExtra extra =  extras.get(key);
+        if(extra.getValue().getClass().equals(clazz))
+        {
+            return (T) extra.getValue();
+        }
+        throw new RuntimeException("Illegal arguments");
     }
 }
